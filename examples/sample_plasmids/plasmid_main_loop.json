@@ -1,0 +1,7 @@
+{
+  "module_id": "main_loop",
+  "prompt": "Write a main function that runs a while loop to display a menu (Add, Toggle, Show, Exit) and calls the corresponding functions based on user input. Include saving the tasks before exiting. Input: None, Output: None.",
+  "max_retries_primary": 1,
+  "max_retries_secondary": 3,
+  "max_retries_tertiary": 3
+}

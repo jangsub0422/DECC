@@ -1,0 +1,181 @@
+DECC Pipeline User Guide
+
+1. Overview
+
+This project is a local LLM pipeline that takes a natural-language request,
+decomposes it into multiple plasmid JSON files, generates Python modules from them,
+and finally links the results through the integration stage.
+
+Disclaimer:
+
+This project uses an AI-assisted development workflow.
+LLMs (large language models or local coding models) are involved in decomposition,
+code generation, validation, and integration steps.
+As a result, generated outputs may contain errors, omissions, inefficiencies,
+security issues, or incorrect assumptions.
+All outputs should be reviewed and validated by the user before real use.
+The developer or distributor does not guarantee the accuracy, completeness,
+or fitness of AI-generated results.
+Additional review is strongly recommended before using the outputs in production,
+with sensitive data, or for legal, medical, financial, or security-related purposes.
+
+Main flow:
+
+1) architect.py or web_app.py
+2) plasmids_batch/runs/<run_name>/
+3) run_batch.py
+4) outputs/runs/<run_name>/
+5) integration.py
+6) final_app.py
+
+
+2. Quick Launch Files
+
+OS-specific launchers:
+
+- Windows: start_decc_windows.bat
+- Linux: start_decc_linux.sh
+
+These files start the Streamlit wrapper.
+
+3. Requirements
+
+- Python installed
+- Ollama installed and running
+- API key if needed
+  - Gemini: GOOGLE_API_KEY or GEMINI_API_KEY
+  - OpenAI: OPENAI_API_KEY
+  - Claude: ANTHROPIC_API_KEY
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+
+4. Easiest way to use: web_app.py
+
+The Streamlit wrapper provides multi-line input and run management UI.
+
+Run:
+
+streamlit run web_app.py
+
+Or run the launcher file for your operating system.
+
+Main tabs:
+
+- Architect
+  Enter natural-language requirements
+  Select host
+  Select model
+  Enter Run name / project name
+  Generate plasmid JSON files
+
+- Current Plasmids
+  Review plasmid JSON files for the current active run
+
+- Runs
+  Review previous runs
+  Switch the active run
+  Inspect plasmids / outputs / final_app snapshot for a selected run
+
+- Pipeline
+  Run batch generation
+  Run integration
+  Check the current active output run
+
+- Maintenance
+  Clean legacy root files
+  Clean __pycache__
+
+
+4. Run names and storage layout
+
+When you enter a Run name / project name, it is combined with a timestamp.
+
+Example:
+
+csv_to_json_20260504_193000
+
+Storage layout:
+
+Plasmid JSON files:
+plasmids_batch/runs/<run_name>/
+
+Generated Python modules:
+outputs/runs/<run_name>/
+
+Active run pointer:
+plasmids_batch/ACTIVE_RUN.txt
+
+
+5. CLI usage
+
+1) Run Architect
+
+python architect.py
+
+or use the web wrapper
+
+2) Run batch generation
+
+python run_batch.py
+
+3) Run integration
+
+python integration.py
+
+
+6. Recommended workflow
+
+1) Start web_app.py
+2) Enter your requirement and run name in the Architect tab
+3) Generate plasmids
+4) Review them in Current Plasmids
+5) Run batch in the Pipeline tab
+6) Run integration in the Pipeline tab
+7) Review the result in the Runs tab
+
+
+7. Notes
+
+- Old root-level plasmid or outputs files can cause confusion.
+  It is recommended to clean them from the Maintenance tab.
+
+- Integration works against the current active run and active output run.
+
+- Profile-based normalization may adjust the raw blueprint plan before it is saved.
+
+
+8. Main files
+
+- architect.py
+  Decomposes natural-language requests into blueprints and normalizes them by profile.
+
+- profiles.py
+  Defines architecture profiles such as cli_crud, file_transformer, and data_analysis.
+
+- run_batch.py
+  Iterates over the active plasmid run and generates Python modules.
+
+- integration.py
+  Checks the active output run and creates final_app.py.
+
+- web_app.py
+  Streamlit-based wrapper UI.
+
+
+9. If something goes wrong
+
+1) Check whether the active run is correct
+2) Inspect plasmids in the Current Plasmids tab
+3) Inspect generated files under outputs/runs/<run_name>/
+4) Read Contract Notes in the integration output
+5) If needed, clean legacy files and __pycache__ from the Maintenance tab
+
+
+10. Summary
+
+The recommended way to use this project is to start from web_app.py,
+assign a run name,
+and manage plasmids plus generated Python outputs as one grouped bundle.

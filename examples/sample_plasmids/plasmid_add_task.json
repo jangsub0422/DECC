@@ -1,0 +1,7 @@
+{
+  "module_id": "add_task",
+  "prompt": "Write add_task(tasks, description). Create a new dictionary with keys 'description' and 'completed' (default False), append it to the existing task list, and return the updated list.",
+  "max_retries_primary": 1,
+  "max_retries_secondary": 3,
+  "max_retries_tertiary": 3
+}

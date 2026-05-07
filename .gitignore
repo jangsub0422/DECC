@@ -1,0 +1,12 @@
+plasmids_batch/
+outputs/
+__pycache__/
+*.pyc
+*.pyo
+final_app.py
+.env
+.pytest_cache/
+.streamlit/secrets.toml
+tasks.json
+venv/
+.venv/

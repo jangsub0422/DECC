@@ -1,0 +1,7 @@
+{
+  "module_id": "toggle_task_status",
+  "prompt": "Write a function that displays all tasks with indices, asks the user to select an index, and flips the boolean value of the 'completed' key for that specific task. Input: list of tasks, Output: updated list of tasks.",
+  "max_retries_primary": 1,
+  "max_retries_secondary": 3,
+  "max_retries_tertiary": 3
+}

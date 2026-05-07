@@ -1,0 +1,7 @@
+{
+  "module_id": "save_tasks",
+  "prompt": "Write a function that takes a list of task dictionaries and saves them to 'tasks.json' as a JSON file. Input: list of dictionaries, Output: None.",
+  "max_retries_primary": 1,
+  "max_retries_secondary": 3,
+  "max_retries_tertiary": 3
+}

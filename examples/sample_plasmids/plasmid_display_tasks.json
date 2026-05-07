@@ -1,0 +1,7 @@
+{
+  "module_id": "display_tasks",
+  "prompt": "Write a function that iterates through the task list and prints each task with its completion status (e.g., [x] or [ ]) and its index. Input: list of tasks, Output: None.",
+  "max_retries_primary": 1,
+  "max_retries_secondary": 3,
+  "max_retries_tertiary": 3
+}

@@ -1,0 +1,7 @@
+{
+  "module_id": "load_tasks",
+  "prompt": "Write a function that reads a JSON file named 'tasks.json' and returns a list of dictionaries. If the file does not exist, return an empty list. Input: None, Output: list of dictionaries.",
+  "max_retries_primary": 1,
+  "max_retries_secondary": 3,
+  "max_retries_tertiary": 3
+}
