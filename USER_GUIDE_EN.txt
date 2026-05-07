@@ -42,7 +42,7 @@ These files start the Streamlit wrapper.
 
 - Python installed
 - Ollama installed and running
-- API key if needed
+- API key only if you intentionally use a hosted API path
   - Gemini: GOOGLE_API_KEY or GEMINI_API_KEY
   - OpenAI: OPENAI_API_KEY
   - Claude: ANTHROPIC_API_KEY
@@ -50,6 +50,14 @@ These files start the Streamlit wrapper.
 Install dependencies:
 
 pip install -r requirements.txt
+
+Notes:
+
+- `requirements.txt` installs Python packages only.
+- Ollama must be installed separately as a local service.
+- Hosted APIs are supported, but they are not the recommended default because they can create recurring cost.
+- At this alpha stage, hosted APIs are available for the architect step, while
+  module code generation still uses the local Ollama-based path.
 
 
 4. Easiest way to use: web_app.py

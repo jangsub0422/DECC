@@ -53,14 +53,38 @@ Important directories:
 ## Requirements
 
 - Python 3.11+ recommended
-- Optional API key depending on architect host
-- Ollama only if using the local architect/code-generation path
+- Python packages from `requirements.txt`
+- Ollama installed and running for the recommended local-model workflow
+- Optional API key only if you intentionally use a hosted API architect path
 
 Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
+
+Prerequisites:
+
+- `requirements.txt` installs Python packages only
+- Ollama is a separate local service and must be installed manually
+- Hosted APIs are supported, but they are not the recommended default path for this project
+
+## Recommended Runtime Path
+
+The recommended way to use DECC is the local-first path:
+
+- local Python environment
+- local Streamlit wrapper
+- local Ollama service for local-model workflows
+
+Hosted APIs such as Gemini, OpenAI, and Claude can be used for the architect step,
+but they are optional and generally not recommended as the default setup because
+they can introduce recurring usage cost.
+
+At the current `0.0.1-alpha` stage, hosted API support is available for the
+architect decomposition step, but hosted API execution for module code generation
+is still in progress. The batch code-generation path currently targets the local
+Ollama workflow.
 
 ## Running With The Web Wrapper
 
@@ -122,6 +146,7 @@ Version metadata is stored in:
 - Entry modules may still require prompt tuning for some use cases
 - Profile coverage is limited
 - End-to-end output quality depends heavily on the selected model
+- Hosted API support for module code generation is still under implementation
 - The pipeline is designed for experimentation, not guaranteed production delivery
 
 ## Suggested First GitHub Release Notes

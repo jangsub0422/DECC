@@ -40,7 +40,7 @@ DECC Pipeline 사용자 안내서
 
 - Python 설치
 - Ollama 설치 및 실행
-- 필요한 경우 API 키 준비
+- 필요한 경우에만 API 키 준비
   - Gemini: GOOGLE_API_KEY 또는 GEMINI_API_KEY
   - OpenAI: OPENAI_API_KEY
   - Claude: ANTHROPIC_API_KEY
@@ -48,6 +48,14 @@ DECC Pipeline 사용자 안내서
 의존성 설치:
 
 pip install -r requirements.txt
+
+참고:
+
+- `requirements.txt`는 Python 패키지만 설치합니다.
+- Ollama는 별도 설치가 필요한 로컬 서비스입니다.
+- Gemini, OpenAI, Claude 같은 상용 API 경로도 지원하지만, 사용량 비용이 발생할 수 있어서 기본 권장 경로는 아닙니다.
+- 현재 알파 단계에서는 상용 API 경로가 architect 분해 단계까지만 연결되어 있고,
+  모듈 코드 생성 단계는 아직 로컬 Ollama 기반 경로를 사용합니다.
 
 
 4. 가장 쉬운 사용 방법: web_app.py
