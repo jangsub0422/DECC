@@ -1,9 +1,6 @@
 import getpass
 import os
 
-from google import genai
-from google.genai import types
-
 from .base import HostConnector
 
 
@@ -35,6 +32,9 @@ class GeminiConnector(HostConnector):
         return f"GeminiConnector({self.model_name})"
 
     def cultivate(self, prompt: str) -> str:
+        from google import genai
+        from google.genai import types
+
         api_key = get_secret(
             ["GOOGLE_API_KEY", "GEMINI_API_KEY"],
             "Enter Gemini API Key: ",
