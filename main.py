@@ -2,8 +2,10 @@ import argparse
 import json
 from pathlib import Path
 
+from code_pipeline.connectors.api import ClaudeConnector, GeminiConnector, OpenAIConnector
 from code_pipeline.connectors.local_cli import LocalCliConnector
 from code_pipeline.contracts import DEFAULT_OLLAMA_MODEL, DEFAULT_PROFILE
+from code_pipeline.host_config import DEFAULT_HOST, HOST_DEFAULT_MODELS
 from code_pipeline.protocol import run_protocol
 
 
@@ -33,9 +35,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="DECC Pipeline Executor")
     parser.add_argument("dna_file", help="Path to the JSON DNA file")
     parser.add_argument(
+        "--host",
+        choices=["ollama", "gemini", "openai", "claude"],
+        default=DEFAULT_HOST,
+        help=f"Generation host to run (default: {DEFAULT_HOST})",
+    )
+    parser.add_argument(
         "--model",
-        default=DEFAULT_OLLAMA_MODEL,
-        help=f"Ollama model name to run (default: {DEFAULT_OLLAMA_MODEL})",
+        default=None,
+        help="Model name to run for the selected generation host.",
     )
     parser.add_argument(
         "--max-retries",
@@ -46,17 +54,39 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def execute_dna(dna_file: str, model_name: str, max_retries_override: int | None) -> str | None:
+def build_connector(host_name: str, model_name: str | None):
+    if host_name == "ollama":
+        resolved_model = model_name or DEFAULT_OLLAMA_MODEL
+        return LocalCliConnector(
+            command="ollama",
+            base_args=["run", resolved_model],
+        ), resolved_model
+    if host_name == "gemini":
+        resolved_model = model_name or HOST_DEFAULT_MODELS["gemini"]
+        return GeminiConnector(resolved_model), resolved_model
+    if host_name == "openai":
+        resolved_model = model_name or HOST_DEFAULT_MODELS["openai"]
+        return OpenAIConnector(resolved_model), resolved_model
+    if host_name == "claude":
+        resolved_model = model_name or HOST_DEFAULT_MODELS["claude"]
+        return ClaudeConnector(resolved_model), resolved_model
+    raise ValueError(f"Unsupported generation host: {host_name}")
+
+
+def execute_dna(
+    dna_file: str,
+    host_name: str,
+    model_name: str | None,
+    max_retries_override: int | None,
+) -> str | None:
     print(f"\n[Injection] Loading genetic sequence from {dna_file}...")
     dna = load_dna(dna_file)
 
-    connector = LocalCliConnector(
-        command="ollama",
-        base_args=["run", model_name],
-    )
+    connector, resolved_model = build_connector(host_name, model_name)
     max_retries = max_retries_override or dna.get("max_retries_tertiary", 3)
 
-    print(f"\n>>> Single Phase Cultivation: {model_name}")
+    print(f"\n>>> Single Phase Cultivation: {resolved_model}")
+    print(f"[Host] {host_name}")
     print(f"[Profile] {dna['profile']}")
     if dna.get("run_name"):
         print(f"[Run] {dna['run_name']}")
@@ -74,7 +104,7 @@ def execute_dna(dna_file: str, model_name: str, max_retries_override: int | None
 
 if __name__ == "__main__":
     args = build_parser().parse_args()
-    result_path = execute_dna(args.dna_file, args.model, args.max_retries)
+    result_path = execute_dna(args.dna_file, args.host, args.model, args.max_retries)
 
     if result_path:
         print(f"\n[FINAL SUCCESS] High-purity product ready: {result_path}")

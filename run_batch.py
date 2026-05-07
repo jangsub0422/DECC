@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from code_pipeline.contracts import DEFAULT_OLLAMA_MODEL
+from code_pipeline.host_config import DEFAULT_HOST, HOST_DEFAULT_MODELS
 from code_pipeline.plasmid_paths import get_active_run_dir, get_output_run_dir
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -13,9 +14,15 @@ MAIN_SCRIPT = PROJECT_ROOT / "main.py"
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run every plasmid in the batch directory.")
     parser.add_argument(
+        "--host",
+        choices=["ollama", "gemini", "openai", "claude"],
+        default=DEFAULT_HOST,
+        help=f"Generation host to run for every plasmid (default: {DEFAULT_HOST})",
+    )
+    parser.add_argument(
         "--model",
-        default=DEFAULT_OLLAMA_MODEL,
-        help=f"Ollama model name to run for every plasmid (default: {DEFAULT_OLLAMA_MODEL})",
+        default=None,
+        help="Model name to run for every plasmid with the selected generation host.",
     )
     parser.add_argument(
         "--max-retries",
@@ -26,9 +33,10 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run_all_plasmids(model_name: str, max_retries_override: int | None) -> None:
-    plasmid_dir = get_active_run_dir()
-    output_dir = get_output_run_dir()
+def run_all_plasmids(host_name: str, model_name: str | None, max_retries_override: int | None) -> None:
+    plasmid_dir = get_active_run_dir(PROJECT_ROOT)
+    output_dir = get_output_run_dir(PROJECT_ROOT)
+    resolved_model = model_name or HOST_DEFAULT_MODELS.get(host_name, DEFAULT_OLLAMA_MODEL)
 
     if not plasmid_dir.exists():
         print("[ERROR] plasmids_batch directory was not found.")
@@ -40,7 +48,7 @@ def run_all_plasmids(model_name: str, max_retries_override: int | None) -> None:
         return
 
     print("=" * 60)
-    print(f"[Batch Start] {len(plasmids)} plasmids | model={model_name}")
+    print(f"[Batch Start] {len(plasmids)} plasmids | host={host_name} | model={resolved_model}")
     print(f"[Active Run] {plasmid_dir}")
     print(f"[Output Run] {output_dir}")
     print("[Notice] Generated Python modules are AI-assisted outputs and should be validated before real use.")
@@ -51,7 +59,15 @@ def run_all_plasmids(model_name: str, max_retries_override: int | None) -> None:
         print(f"[{index}/{len(plasmids)}] Injecting {plasmid_path.name}")
         print("=" * 60)
 
-        command = [sys.executable, str(MAIN_SCRIPT), str(plasmid_path), "--model", model_name]
+        command = [
+            sys.executable,
+            str(MAIN_SCRIPT),
+            str(plasmid_path),
+            "--host",
+            host_name,
+            "--model",
+            resolved_model,
+        ]
         if max_retries_override is not None:
             command.extend(["--max-retries", str(max_retries_override)])
 
@@ -62,4 +78,4 @@ def run_all_plasmids(model_name: str, max_retries_override: int | None) -> None:
 
 if __name__ == "__main__":
     args = build_parser().parse_args()
-    run_all_plasmids(args.model, args.max_retries)
+    run_all_plasmids(args.host, args.model, args.max_retries)

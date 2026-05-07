@@ -54,8 +54,8 @@ pip install -r requirements.txt
 - `requirements.txt`는 Python 패키지만 설치합니다.
 - Ollama는 별도 설치가 필요한 로컬 서비스입니다.
 - Gemini, OpenAI, Claude 같은 상용 API 경로도 지원하지만, 사용량 비용이 발생할 수 있어서 기본 권장 경로는 아닙니다.
-- 현재 알파 단계에서는 상용 API 경로가 architect 분해 단계까지만 연결되어 있고,
-  모듈 코드 생성 단계는 아직 로컬 Ollama 기반 경로를 사용합니다.
+- 현재 알파 단계에서는 상용 API 경로를 architect 분해 단계와 모듈 코드 생성 단계 모두에 사용할 수 있지만,
+  기본 권장 경로는 여전히 로컬 Ollama 기반 워크플로우입니다.
 
 
 4. 가장 쉬운 사용 방법: web_app.py

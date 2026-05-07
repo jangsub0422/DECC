@@ -25,6 +25,9 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import architect
 from code_pipeline import __version__
+from code_pipeline.host_config import HOST_DEFAULT_MODELS as GENERATION_HOST_DEFAULT_MODELS
+from code_pipeline.host_config import HOST_DISPLAY_NAMES as GENERATION_HOST_DISPLAY_NAMES
+from code_pipeline.host_config import HOST_MODEL_OPTIONS as GENERATION_HOST_MODEL_OPTIONS
 from code_pipeline.plasmid_paths import (
     get_active_run_dir,
     get_output_run_dir,
@@ -49,6 +52,7 @@ HOST_OPTIONS = {
     "Claude API": "3",
     "Ollama Local": "4",
 }
+GENERATION_HOST_OPTIONS = {label: host_name for host_name, label in GENERATION_HOST_DISPLAY_NAMES.items()}
 
 
 @contextmanager
@@ -229,10 +233,13 @@ def clear_pycache_dirs(base_dir: Path) -> int:
     return removed
 
 
-def run_command(command: list[str]) -> tuple[int, str]:
+def run_command(command: list[str], extra_env: dict[str, str] | None = None) -> tuple[int, str]:
     """
     Run a pipeline command from the project root and return combined stdout/stderr.
     """
+    env = os.environ.copy()
+    if extra_env:
+        env.update(extra_env)
     result = subprocess.run(
         command,
         text=True,
@@ -241,6 +248,7 @@ def run_command(command: list[str]) -> tuple[int, str]:
         errors="replace",
         check=False,
         cwd=str(PROJECT_ROOT),
+        env=env,
     )
     output = result.stdout
     if result.stderr:
@@ -424,8 +432,31 @@ def render_pipeline_tab() -> None:
     st.warning(
         "Generated Python files and integration results are AI-assisted outputs. Verify behavior before real use."
     )
+    st.info("The recommended default path remains local Ollama. API-based module generation is available but may incur usage cost.")
     active_output_dir = get_output_run_dir(PROJECT_ROOT)
     st.write("Active output run:", str(active_output_dir))
+
+    generation_host_label = st.selectbox("Generation Host", list(GENERATION_HOST_OPTIONS.keys()))
+    generation_host = GENERATION_HOST_OPTIONS[generation_host_label]
+    generation_api_key = ""
+
+    if generation_host in {"gemini", "openai", "claude"}:
+        generation_api_key = st.text_input("Generation API key", type="password")
+        model_options = GENERATION_HOST_MODEL_OPTIONS.get(generation_host, [])
+        default_model = GENERATION_HOST_DEFAULT_MODELS[generation_host]
+        if model_options:
+            generation_model = st.selectbox(
+                "Generation Model",
+                model_options,
+                index=model_options.index(default_model) if default_model in model_options else 0,
+            )
+        else:
+            generation_model = st.text_input("Generation Model", value=default_model)
+    else:
+        generation_model = st.text_input(
+            "Ollama generation model",
+            value=GENERATION_HOST_DEFAULT_MODELS["ollama"],
+        )
 
     col1, col2, col3 = st.columns(3)
 
@@ -445,8 +476,33 @@ def render_pipeline_tab() -> None:
             st.info("Active output run does not exist.")
 
     if run_batch:
+        if generation_host in {"gemini", "openai", "claude"} and not generation_api_key.strip():
+            st.error("Generation API key is required for the selected API host.")
+            return
+
+        extra_env: dict[str, str] | None = None
+        if generation_host == "gemini":
+            extra_env = {
+                "GOOGLE_API_KEY": generation_api_key.strip(),
+                "GEMINI_API_KEY": generation_api_key.strip(),
+            }
+        elif generation_host == "openai":
+            extra_env = {"OPENAI_API_KEY": generation_api_key.strip()}
+        elif generation_host == "claude":
+            extra_env = {"ANTHROPIC_API_KEY": generation_api_key.strip()}
+
         with st.spinner("Running run_batch.py..."):
-            code, output = run_command([sys.executable, str(RUN_BATCH_SCRIPT)])
+            code, output = run_command(
+                [
+                    sys.executable,
+                    str(RUN_BATCH_SCRIPT),
+                    "--host",
+                    generation_host,
+                    "--model",
+                    generation_model,
+                ],
+                extra_env=extra_env,
+            )
         st.code(output, language="text")
         if code == 0:
             st.success("run_batch.py finished.")

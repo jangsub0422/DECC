@@ -30,5 +30,5 @@ DECC 0.0.1-alpha introduces the first public alpha of a structured AI-assisted c
 - Generated outputs still require manual review
 - Some profiles and prompts remain under active tuning
 - API/model behavior may affect decomposition and generation quality
-- Hosted API support for module code generation is still in progress
+- Hosted API-based generation may increase cost and operational variability
 - End-to-end reliability is improving, but not finalized

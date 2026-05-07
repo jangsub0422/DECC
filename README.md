@@ -81,10 +81,10 @@ Hosted APIs such as Gemini, OpenAI, and Claude can be used for the architect ste
 but they are optional and generally not recommended as the default setup because
 they can introduce recurring usage cost.
 
-At the current `0.0.1-alpha` stage, hosted API support is available for the
-architect decomposition step, but hosted API execution for module code generation
-is still in progress. The batch code-generation path currently targets the local
-Ollama workflow.
+At the current `0.0.1-alpha` stage, hosted API support is available for both
+the architect decomposition step and module code generation. However, the
+recommended default path is still the local Ollama workflow because hosted APIs
+can introduce recurring usage cost.
 
 ## Running With The Web Wrapper
 
@@ -146,7 +146,7 @@ Version metadata is stored in:
 - Entry modules may still require prompt tuning for some use cases
 - Profile coverage is limited
 - End-to-end output quality depends heavily on the selected model
-- Hosted API support for module code generation is still under implementation
+- Hosted API-based generation may increase cost and operational variability
 - The pipeline is designed for experimentation, not guaranteed production delivery
 
 ## Suggested First GitHub Release Notes

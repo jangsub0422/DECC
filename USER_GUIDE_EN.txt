@@ -56,8 +56,8 @@ Notes:
 - `requirements.txt` installs Python packages only.
 - Ollama must be installed separately as a local service.
 - Hosted APIs are supported, but they are not the recommended default because they can create recurring cost.
-- At this alpha stage, hosted APIs are available for the architect step, while
-  module code generation still uses the local Ollama-based path.
+- Hosted APIs can be used for both the architect step and module code generation,
+  but the recommended default path is still the local Ollama-based workflow.
 
 
 4. Easiest way to use: web_app.py
