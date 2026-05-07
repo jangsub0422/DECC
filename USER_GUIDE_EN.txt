@@ -11,6 +11,8 @@ Disclaimer:
 This project uses an AI-assisted development workflow.
 LLMs (large language models or local coding models) are involved in decomposition,
 code generation, validation, and integration steps.
+Because this project includes AI-generated code, users should review outputs carefully
+before execution, reuse, redistribution, or deployment.
 As a result, generated outputs may contain errors, omissions, inefficiencies,
 security issues, or incorrect assumptions.
 All outputs should be reviewed and validated by the user before real use.

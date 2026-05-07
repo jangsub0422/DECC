@@ -2,6 +2,14 @@
 
 DECC is an AI-assisted code generation pipeline that decomposes a natural-language program request into structured module blueprints, generates Python modules in batch, validates them, and links them into a runnable application.
 
+## 한국어 개요
+
+DECC는 자연어 프로그램 요구사항을 여러 개의 plasmid JSON 모듈 명세로 분해하고,
+각 명세를 바탕으로 Python 모듈을 생성한 뒤,
+검증과 integration 단계를 거쳐 실행 가능한 결과물로 연결하는 AI 보조 코드 생성 파이프라인입니다.
+
+이 프로젝트는 생물학적 단백질 발현 및 SDS-PAGE 검증 과정을 모티브로 설계되었습니다.
+
 Current release status: `0.0.1-alpha`
 
 ## What DECC Does
@@ -25,6 +33,8 @@ This is still an alpha release. Generated code may be incomplete, inconsistent, 
 ## Disclaimer
 
 This project uses AI-assisted generation in multiple stages, including decomposition, code generation, validation feedback, and integration guidance.
+
+Because this project includes AI-generated code, users should review outputs carefully before execution, reuse, redistribution, or deployment.
 
 - Outputs may contain bugs, omissions, security issues, or incorrect assumptions.
 - The generated results are not guaranteed to be correct, complete, or production-ready.
@@ -139,6 +149,7 @@ Version metadata is stored in:
 
 - `USER_GUIDE_KO.txt`
 - `USER_GUIDE_EN.txt`
+- `THIRD_PARTY_NOTICES.md`
 
 ## Known Alpha Limitations
 
@@ -152,3 +163,10 @@ Version metadata is stored in:
 ## Suggested First GitHub Release Notes
 
 Use `CHANGELOG.md` and `RELEASE_NOTES_0.0.1-alpha.md` as the initial release summary.
+
+## Third-Party Note
+
+This repository includes references to third-party Python packages through
+`requirements.txt`. Those dependencies remain subject to their own licenses and,
+where applicable, their own service terms. See `THIRD_PARTY_NOTICES.md` for a
+basic notice summary.
