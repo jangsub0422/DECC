@@ -1,5 +1,7 @@
 DECC Pipeline 사용자 안내서
 
+DECC는 Digital E. coli Code Compiler의 약자입니다.
+
 1. 개요
 
 이 프로젝트는 자연어 요청을 여러 개의 plasmid JSON 명세로 분해하고, 각 plasmid를 Python 모듈로 생성한 뒤, 마지막에 integration 단계로 연결하는 로컬 AI 보조 파이프라인입니다.
@@ -136,6 +138,8 @@ csv_to_json_20260504_193000
 - CHANGELOG.md
 - RELEASE_NOTES_0.0.1-alpha.md
 - RELEASE_NOTES_0.0.1-alpha_KO.md
+- RELEASE_NOTES_0.0.2-alpha.md
+- RELEASE_NOTES_0.0.2-alpha_KO.md
 - THIRD_PARTY_NOTICES.md
 
 

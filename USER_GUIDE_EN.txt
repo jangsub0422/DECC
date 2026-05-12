@@ -1,5 +1,7 @@
 DECC Pipeline User Guide
 
+DECC stands for Digital E. coli Code Compiler.
+
 1. Overview
 
 This project is a local LLM pipeline that takes a natural-language request,

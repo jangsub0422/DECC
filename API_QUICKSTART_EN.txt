@@ -1,0 +1,164 @@
+DECC API QUICKSTART
+
+1. What this file is for.
+
+This file is a short guide for beginners who want to use DECC with hosted APIs.
+It explains where APIs are used, which keys are needed, and how to start from the wrapper or CLI.
+
+
+2. What to know first.
+
+- DECC recommends the local Ollama workflow as the default path.
+- Gemini, OpenAI, and Claude APIs are also supported.
+- Hosted API usage may create cost depending on request volume and model choice.
+- Even when you use an API, generated outputs should still be reviewed by a person.
+
+
+3. Where APIs are used.
+
+DECC can use APIs in two main stages.
+
+1) Architect stage
+- This stage decomposes a natural-language request into plasmid JSON blueprints.
+
+2) Module generation stage
+- This stage turns plasmid JSON blueprints into Python module code.
+
+
+4. Supported API providers.
+
+- Gemini API
+- OpenAI API
+- Claude API
+
+
+5. What you need.
+
+- Python installed
+- Dependencies installed from requirements.txt
+- An API key from the provider you want to use
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+
+6. Environment variable names.
+
+Gemini:
+- GOOGLE_API_KEY
+- GEMINI_API_KEY
+
+OpenAI:
+- OPENAI_API_KEY
+
+Claude:
+- ANTHROPIC_API_KEY
+
+
+7. Easiest way to use APIs: web_app.py
+
+Run:
+
+streamlit run web_app.py
+
+Or use the launcher that matches your operating system:
+
+- Windows: start_decc_windows.bat
+- Linux: start_decc_linux.sh
+
+
+8. Using an API in the Architect stage.
+
+1) Open web_app.py.
+2) Go to the Architect tab.
+3) Enter your program specification.
+4) Choose an Architect Host.
+   - Gemini API
+   - OpenAI API
+   - Claude API
+5) Enter the API key in the field.
+6) Choose a model.
+7) Click Generate plasmids.
+
+If this step succeeds, plasmid JSON files will be created.
+
+
+9. Using an API in the module generation stage.
+
+1) Go to the Pipeline tab.
+2) Choose a Generation Host.
+   - Gemini API
+   - OpenAI API
+   - Claude API
+   - Ollama Local
+3) If you choose an API-based host, enter the Generation API key.
+4) Choose a Generation Model.
+5) Click Run batch.
+6) Then click Run integration.
+
+
+10. Using APIs from the CLI.
+
+Examples:
+
+python run_batch.py --host openai --model gpt-5-mini
+
+or
+
+python run_batch.py --host gemini --model gemini-2.5-flash
+
+or
+
+python run_batch.py --host claude --model claude-sonnet-4-20250514
+
+Notes:
+- For CLI usage, the API key should be available in the environment.
+- The shell session must be able to read those variables when the command runs.
+
+
+11. Recommended first workflow.
+
+For beginners, this order is recommended:
+
+1) Use an API in Architect.
+2) Choose either Ollama or an API for module generation.
+3) Review Current Plasmids.
+4) Run batch.
+5) Run integration.
+6) Check the final_app.py result.
+
+
+12. Cost caution.
+
+- Hosted APIs can create usage-based cost.
+- Longer prompts, repeated retries, and stronger models may increase cost.
+- Start with small examples first.
+
+
+13. Recommended first test.
+
+Example request:
+
+Clean up a messy txt file.
+
+or
+
+Create a CLI program that cleans up a messy text file.
+
+It is better to start with a small, easy-to-check task like this.
+
+
+14. If something goes wrong.
+
+- Check whether the API key is correct.
+- Check whether the model name is valid.
+- Check whether Current Plasmids look reasonable.
+- Check integration logs and contract notes.
+- Review generated outputs directly.
+
+
+15. Final caution.
+
+This project includes AI-generated code.
+Review outputs carefully before execution, reuse, redistribution, or deployment.

@@ -108,5 +108,7 @@ if __name__ == "__main__":
 
     if result_path:
         print(f"\n[FINAL SUCCESS] High-purity product ready: {result_path}")
+        raise SystemExit(0)
     else:
         print("\n[FINAL FAILURE] The host failed to generate valid code after all retries.")
+        raise SystemExit(1)

@@ -1,8 +1,10 @@
 # DECC
 
+DECC stands for **Digital E. coli Code Compiler**.
+
 DECC is an AI-assisted code generation pipeline that decomposes a natural-language program request into structured module blueprints, generates Python modules in batch, validates them, and links them into a runnable application.
 
-Current release status: `0.0.1-alpha`
+Current release status: `0.0.2-alpha`
 
 ## English
 
@@ -138,7 +140,7 @@ If your environment uses a different launcher, use that launcher instead of `pyt
 
 This repository currently targets:
 
-- `0.0.1-alpha`, the first public alpha milestone.
+- `0.0.2-alpha`, the second public alpha milestone.
 
 Version metadata is stored in:
 
@@ -149,7 +151,11 @@ Version metadata is stored in:
 
 - `USER_GUIDE_KO.txt`
 - `USER_GUIDE_EN.txt`
+- `API_QUICKSTART_KO.txt`
+- `API_QUICKSTART_EN.txt`
 - `THIRD_PARTY_NOTICES.md`
+- `RELEASE_NOTES_0.0.2-alpha.md`
+- `RELEASE_NOTES_0.0.2-alpha_KO.md`
 - `RELEASE_NOTES_0.0.1-alpha.md`
 - `RELEASE_NOTES_0.0.1-alpha_KO.md`
 
@@ -170,6 +176,8 @@ Those dependencies remain subject to their own licenses and, where applicable, t
 See `THIRD_PARTY_NOTICES.md` for a basic notice summary.
 
 ## 한국어
+
+DECC는 **Digital E. coli Code Compiler**의 약자입니다.
 
 ### 개요
 
@@ -304,7 +312,7 @@ python final_app.py
 
 현재 저장소 버전은 다음과 같습니다.
 
-- `0.0.1-alpha`, 첫 공개 알파 마일스톤입니다.
+- `0.0.2-alpha`, 두 번째 공개 알파 마일스톤입니다.
 
 버전 정보 위치:
 
@@ -315,7 +323,11 @@ python final_app.py
 
 - `USER_GUIDE_KO.txt`
 - `USER_GUIDE_EN.txt`
+- `API_QUICKSTART_KO.txt`
+- `API_QUICKSTART_EN.txt`
 - `THIRD_PARTY_NOTICES.md`
+- `RELEASE_NOTES_0.0.2-alpha.md`
+- `RELEASE_NOTES_0.0.2-alpha_KO.md`
 - `RELEASE_NOTES_0.0.1-alpha.md`
 - `RELEASE_NOTES_0.0.1-alpha_KO.md`
 

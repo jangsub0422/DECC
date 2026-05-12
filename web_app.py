@@ -27,7 +27,7 @@ import architect
 from code_pipeline import __version__
 from code_pipeline.host_config import HOST_DEFAULT_MODELS as GENERATION_HOST_DEFAULT_MODELS
 from code_pipeline.host_config import HOST_DISPLAY_NAMES as GENERATION_HOST_DISPLAY_NAMES
-from code_pipeline.host_config import HOST_MODEL_OPTIONS as GENERATION_HOST_MODEL_OPTIONS
+from code_pipeline.host_config import get_model_options as get_generation_model_options
 from code_pipeline.plasmid_paths import (
     get_active_run_dir,
     get_output_run_dir,
@@ -123,19 +123,27 @@ def generate_plasmids(
     with temporary_host_environment(host_code, api_key):
         if host_code == "4":
             with patched_input(selected_model.strip()):
-                blueprints, notes, profile_name = architect.prepare_blueprints(
+                blueprints, notes, profile_name, refined_request, refinement_mode, refinement_notes = architect.prepare_blueprints(
                     user_prompt,
                     host_code,
                     selected_model.strip(),
                 )
         else:
-            blueprints, notes, profile_name = architect.prepare_blueprints(
+            blueprints, notes, profile_name, refined_request, refinement_mode, refinement_notes = architect.prepare_blueprints(
                 user_prompt,
                 host_code,
                 selected_model.strip() or None,
             )
 
-    run_dir = architect.create_plasmids(blueprints, profile_name, run_label.strip() or None)
+    run_dir = architect.create_plasmids(
+        blueprints,
+        profile_name,
+        original_request=user_prompt,
+        refined_request=refined_request,
+        refinement_mode=refinement_mode,
+        refinement_notes=refinement_notes,
+        run_label=run_label.strip() or None,
+    )
 
     return {
         "profile": profile_name or "generic",
@@ -143,6 +151,9 @@ def generate_plasmids(
         "module_count": len(blueprints),
         "modules": [blueprint["module_id"] for blueprint in blueprints],
         "notes": notes,
+        "refined_request": refined_request,
+        "refinement_mode": refinement_mode,
+        "refinement_notes": refinement_notes,
         "blueprints": blueprints,
     }
 
@@ -290,14 +301,14 @@ def render_architect_tab() -> None:
         selected_model = ""
         if host_code in {"1", "2", "3"}:
             api_key = st.text_input("API key", type="password")
-            model_options = architect.HOST_MODEL_OPTIONS.get(host_code, [])
+            model_options, model_source = architect.get_architect_model_options(host_code, api_key.strip() or None)
             default_model = architect.HOST_DEFAULT_MODELS[host_code]
             if model_options:
                 selected_model = st.selectbox(
                     "Model",
                     model_options,
                     index=model_options.index(default_model) if default_model in model_options else 0,
-                    help="Update architect.HOST_MODEL_OPTIONS in architect.py when provider model choices change.",
+                    help=f"Model list source: {model_source}",
                 )
             else:
                 selected_model = st.text_input("Model", value=default_model)
@@ -328,8 +339,17 @@ def render_architect_tab() -> None:
 
         st.success(f"Generated {summary['module_count']} plasmids.")
         st.write("Profile:", summary["profile"])
+        st.write("Refinement mode:", summary["refinement_mode"])
         st.write("Run directory:", summary["run_dir"])
         st.write("Modules:", ", ".join(summary["modules"]))
+
+        with st.expander("Refined request"):
+            st.text(summary["refined_request"])
+
+        if summary["refinement_notes"]:
+            st.write("Refinement notes:")
+            for note in summary["refinement_notes"]:
+                st.write("-", note)
 
         if summary["notes"]:
             st.write("Normalization notes:")
@@ -421,6 +441,17 @@ def render_runs_tab() -> None:
     else:
         st.code(final_app_text, language="python")
 
+    batch_report_path = get_output_runs_dir(PROJECT_ROOT) / selected_run_dir.name / "batch_report.json"
+    st.markdown("### Batch report")
+    batch_report_text = read_text_file(batch_report_path)
+    if batch_report_text is None:
+        st.info("No batch_report.json found for the selected run yet.")
+    else:
+        try:
+            st.json(json.loads(batch_report_text))
+        except json.JSONDecodeError:
+            st.code(batch_report_text, language="text")
+
 
 def render_pipeline_tab() -> None:
     """
@@ -442,13 +473,17 @@ def render_pipeline_tab() -> None:
 
     if generation_host in {"gemini", "openai", "claude"}:
         generation_api_key = st.text_input("Generation API key", type="password")
-        model_options = GENERATION_HOST_MODEL_OPTIONS.get(generation_host, [])
+        model_options, model_source = get_generation_model_options(
+            generation_host,
+            generation_api_key.strip() or None,
+        )
         default_model = GENERATION_HOST_DEFAULT_MODELS[generation_host]
         if model_options:
             generation_model = st.selectbox(
                 "Generation Model",
                 model_options,
                 index=model_options.index(default_model) if default_model in model_options else 0,
+                help=f"Model list source: {model_source}",
             )
         else:
             generation_model = st.text_input("Generation Model", value=default_model)
@@ -570,6 +605,7 @@ def main() -> None:
     """
     st.set_page_config(page_title="DECC Pipeline", layout="wide")
     st.title(f"DECC Pipeline Web Wrapper ({__version__})")
+    st.caption("Digital E. coli Code Compiler")
     st.caption(str(PROJECT_ROOT))
     st.info("Note: This wrapper drives an AI-assisted generation pipeline. Review generated outputs before production or sensitive use.")
 

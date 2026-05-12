@@ -1,5 +1,7 @@
 import ast
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from code_pipeline.contracts import (
@@ -11,6 +13,7 @@ from code_pipeline.plasmid_paths import get_active_run_dir, get_output_run_dir
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 FINAL_APP = PROJECT_ROOT / "final_app.py"
+SMOKE_TEST_TIMEOUT_SECONDS = 10
 
 
 def extract_module_exports(file_path: Path) -> dict[str, list[str]]:
@@ -63,6 +66,9 @@ def scan_outputs() -> tuple[dict[str, dict[str, list[str]]], dict[str, str], lis
     empty_modules: list[str] = []
 
     for file_path in sorted(output_dir.glob("*.py")):
+        if file_path.name == "final_app.py":
+            continue
+
         module_name = file_path.stem
         exports = extract_module_exports(file_path)
         module_exports[module_name] = exports
@@ -133,11 +139,75 @@ def build_entry_execution_code(module_name: str, function_name: str, output_dir:
     ]
 
 
+def run_import_smoke_test(output_dir: Path, module_names: list[str]) -> tuple[bool, list[str]]:
+    if not module_names:
+        return False, ["No generated modules were available for import smoke testing."]
+
+    smoke_script = """
+import importlib
+import json
+import sys
+from pathlib import Path
+
+output_dir = Path(sys.argv[1])
+module_names = json.loads(sys.argv[2])
+
+if str(output_dir) not in sys.path:
+    sys.path.insert(0, str(output_dir))
+
+issues = []
+for module_name in module_names:
+    try:
+        importlib.import_module(module_name)
+    except Exception as exc:  # noqa: BLE001
+        issues.append(f"{module_name}: {type(exc).__name__}: {exc}")
+
+print(json.dumps({"ok": not issues, "issues": issues}, ensure_ascii=False))
+raise SystemExit(0 if not issues else 1)
+""".strip()
+
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                smoke_script,
+                str(output_dir),
+                json.dumps(module_names),
+            ],
+            check=False,
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            input="",
+            timeout=SMOKE_TEST_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return False, [
+            f"Import smoke test timed out after {SMOKE_TEST_TIMEOUT_SECONDS} seconds. "
+            "A generated module may be blocking during import."
+        ]
+
+    try:
+        payload = json.loads(result.stdout.strip().splitlines()[-1])
+    except (IndexError, json.JSONDecodeError):
+        details = result.stderr.strip() or result.stdout.strip() or "No smoke test output was produced."
+        return False, [f"Import smoke test could not be parsed: {details}"]
+
+    issues = payload.get("issues", [])
+    if result.returncode != 0 and not issues:
+        issues = [result.stderr.strip() or "Import smoke test failed without details."]
+
+    return not issues, issues
+
+
 def build_integration_failure_code(title: str, details: list[str]) -> list[str]:
     lines = [f'INTEGRATION_STATUS = "{title}"']
     if details:
         lines.append("INTEGRATION_DETAILS = [")
-        lines.extend(f'    "{detail}",' for detail in details)
+        lines.extend(f"    {json.dumps(detail, ensure_ascii=False)}," for detail in details)
         lines.append("]")
     else:
         lines.append("INTEGRATION_DETAILS = []")
@@ -161,6 +231,8 @@ def create_final_app() -> bool:
     module_exports, function_map, duplicates, empty_modules = scan_outputs()
     entry_points = find_entry_points(function_map)
     contracts_ok, issues = validate_required_contracts(profile, module_exports, function_map)
+    module_names = sorted(module_exports)
+    smoke_ok, smoke_issues = run_import_smoke_test(active_output_dir, module_names)
 
     final_code_lines = [
         "# final_app.py",
@@ -189,6 +261,9 @@ def create_final_app() -> bool:
     if empty_modules:
         linker_issues.extend(f"Module has no usable function exports: {module_name}" for module_name in empty_modules)
 
+    if not smoke_ok:
+        linker_issues.extend(f"Import smoke test failed: {issue}" for issue in smoke_issues)
+
     if not entry_points:
         linker_issues.append(
             f"No entry point found. Expected one of: {', '.join(ENTRY_POINT_CANDIDATES)}"
@@ -205,7 +280,7 @@ def create_final_app() -> bool:
             )
         )
         success = False
-    elif contracts_ok and has_single_entry and not duplicates and not empty_modules:
+    elif contracts_ok and smoke_ok and has_single_entry and not duplicates and not empty_modules:
         module_name, function_name = entry_points[0]
         final_code_lines.extend(build_entry_execution_code(module_name, function_name, active_output_dir))
         success = True
@@ -247,6 +322,11 @@ def create_final_app() -> bool:
         print("\n[Linked Entry Point] Ambiguous")
     else:
         print("\n[Linked Entry Point] Not found")
+
+    print(f"\n[Import Smoke Test] {'PASS' if smoke_ok else 'FAIL'}")
+    if smoke_issues:
+        for issue in smoke_issues:
+            print(f" - {issue}")
 
     if linker_issues:
         print("\n[Contract Notes]")

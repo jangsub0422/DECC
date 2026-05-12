@@ -1,0 +1,163 @@
+DECC API 사용 빠른 안내서
+
+1. 이 문서는 무엇인가
+
+이 문서는 처음 사용하는 사람이 DECC에서 상용 API를 어떻게 쓰는지 빠르게 이해할 수 있도록 만든 간단한 안내서입니다.
+
+
+2. 먼저 알아둘 점
+
+- DECC는 로컬 Ollama 경로를 기본 권장 경로로 사용합니다.
+- Gemini, OpenAI, Claude 같은 상용 API도 사용할 수 있습니다.
+- 상용 API는 사용량에 따라 비용이 발생할 수 있습니다.
+- API를 사용할 때도 생성 결과는 반드시 사람이 직접 검토해야 합니다.
+
+
+3. API는 어디에 쓰이나
+
+DECC에서 API는 크게 두 곳에 사용할 수 있습니다.
+
+1) Architect 단계
+- 사용자의 자연어 요청을 plasmid JSON 명세로 분해하는 단계입니다.
+
+2) Module Generation 단계
+- plasmid JSON을 실제 Python 모듈 코드로 생성하는 단계입니다.
+
+
+4. 어떤 API를 지원하나
+
+- Gemini API
+- OpenAI API
+- Claude API
+
+
+5. 준비해야 할 것
+
+- Python 설치
+- requirements.txt 설치
+- 사용할 API 제공자의 API 키
+
+의존성 설치:
+
+pip install -r requirements.txt
+
+
+6. API 키 이름
+
+Gemini:
+- GOOGLE_API_KEY
+- GEMINI_API_KEY
+
+OpenAI:
+- OPENAI_API_KEY
+
+Claude:
+- ANTHROPIC_API_KEY
+
+
+7. 가장 쉬운 사용 방법: web_app.py
+
+실행:
+
+streamlit run web_app.py
+
+또는 운영체제에 맞는 런처 실행:
+
+- Windows: start_decc_windows.bat
+- Linux: start_decc_linux.sh
+
+
+8. Architect 단계에서 API 사용하기
+
+1) web_app.py를 엽니다.
+2) Architect 탭으로 갑니다.
+3) Program specification에 원하는 작업을 입력합니다.
+4) Architect Host에서 API 제공자를 선택합니다.
+   - Gemini API
+   - OpenAI API
+   - Claude API
+5) API key 칸에 키를 입력합니다.
+6) Model을 선택합니다.
+7) Generate plasmids를 누릅니다.
+
+이 단계가 끝나면 plasmid JSON이 생성됩니다.
+
+
+9. Module Generation 단계에서 API 사용하기
+
+1) Pipeline 탭으로 갑니다.
+2) Generation Host를 선택합니다.
+   - Gemini API
+   - OpenAI API
+   - Claude API
+   - Ollama Local
+3) API 기반 host를 선택했다면 Generation API key를 입력합니다.
+4) Generation Model을 선택합니다.
+5) Run batch를 누릅니다.
+6) 그 다음 Run integration을 누릅니다.
+
+
+10. CLI에서 API 사용하기
+
+예시:
+
+python run_batch.py --host openai --model gpt-5-mini
+
+또는
+
+python run_batch.py --host gemini --model gemini-2.5-flash
+
+또는
+
+python run_batch.py --host claude --model claude-sonnet-4-20250514
+
+주의:
+- CLI에서는 API 키가 환경변수에 들어 있거나,
+- 실행 중 입력 가능한 상태여야 합니다.
+
+
+11. 추천 사용 순서
+
+처음에는 아래 순서를 권장합니다.
+
+1) Architect는 API로 사용
+2) Module Generation은 Ollama 또는 API 중 하나 선택
+3) Current Plasmids 검토
+4) Run batch 실행
+5) Run integration 실행
+6) final_app.py 결과 확인
+
+
+12. 비용 관련 주의
+
+- API는 요청할 때마다 비용이 발생할 수 있습니다.
+- 긴 프롬프트, 많은 재시도, 큰 모델 사용은 비용을 늘릴 수 있습니다.
+- 처음에는 작은 예제로 테스트하는 것이 좋습니다.
+
+
+13. 추천 첫 테스트
+
+예시 입력:
+
+지저분한 txt 파일 정리해줘
+
+또는
+
+Create a CLI program that cleans up a messy text file.
+
+이런 간단한 작업으로 먼저 테스트하는 것이 좋습니다.
+
+
+14. 문제가 생기면
+
+- API 키가 올바른지 확인합니다.
+- 모델 이름이 맞는지 확인합니다.
+- Current Plasmids의 결과가 이상하지 않은지 확인합니다.
+- integration 로그의 Contract Notes를 확인합니다.
+- 생성 결과는 항상 직접 검토합니다.
+
+
+15. 마지막 주의
+
+이 프로젝트는 AI 생성 코드를 포함할 수 있습니다.
+실행, 재사용, 재배포, 배포 전에 반드시 사람이 직접 검토해야 합니다.
